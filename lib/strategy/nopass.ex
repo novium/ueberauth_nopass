@@ -3,29 +3,25 @@ defmodule Ueberauth.Strategy.Nopass do
   Strategy for using mail-based authentication
   """
 
-  use Ueberauth.Strategy, uid_field: :email,
-    email_field: :email,
-    name_field: :name,
-    first_name_field: :first_name,
-    last_name_field: :last_name,
-    nickname_field: :nickname,
-    phone_field: :phone,
-    location_field: :location,
-    description_field: :description,
-    password_field: :password,
-    password_confirmation_field: :password_confirmation,
-    param_nesting: nil,
-    scrub_params: true
+  use Ueberauth.Strategy, email: :email,
+    host: :host,
+    callback: :callback
+
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
   alias Ueberauth.Auth
 
-  def handle_request!(conn) do
+  def handle_request!(%{params: %{"email" => email}} = conn) do
+    create_new_auth(email, conn)
     redirect!(conn, "/nopass/do")
   end
 
-  def handle_auth!(conn) do
+  def handle_request!(conn) do
+    halt(conn)
+  end
+
+  def handle_callback!(conn) do
     conn
     |> check_auth
   end
@@ -33,56 +29,42 @@ defmodule Ueberauth.Strategy.Nopass do
   def info(conn) do
     struct(
       Info,
-      email: param_for(conn, :email_field)
+      email: UeberauthNopass.Store.get_email(conn.params["code"])
+    )
+  end
+
+  def auth(conn) do
+    struct(
+      Auth,
+      info: info(conn),
+      uid: UeberauthNopass.Store.get_email(conn.params["code"])
     )
   end
 
   defp check_auth(%Plug.Conn{params: %{"code" => code}} = conn) do
     case UeberauthNopass.Store.check(code) do
       :error -> set_errors!(conn, [error("code_not_valid", "Code is not valid")])
-      _ -> put_private(conn, :email, UeberauthNopass.Store.get_email(code))
+      :authorized -> set_errors!(conn, [error("code_already_used", "Code has already been used")])
+      :not_authorized ->
+        # UeberauthNopass.Store.complete(code)
+        conn
     end
   end
 
-  defp check_auth(conn) do
-    set_errors!(conn, [error("missing_code", "No code received")])
-  end
+  defp create_new_auth(email, conn) do
+    code = :crypto.strong_rand_bytes(10) |> Base.url_encode64 |> binary_part(0, 10)
 
+    UeberauthNopass.Store.new(code, "elmoo32@gmail.com")
+
+    Bamboo.Email.new_email(
+      from: option(conn, :email),
+      to: email,
+      subject: "Authentication request",
+      text_body: "Hi! Either click this link " <> option(conn, :host) <> option(conn, :callback) <> "/?code=" <> code <> " or enter " <> code
+    ) |> UeberauthNopass.Mailer.deliver_now
+  end
 
   defp option(conn, name) do
     Keyword.get(options(conn), name, Keyword.get(default_options(), name))
   end
-
-  defp param_for(conn, name) do
-    param_for(conn, name, option(conn, :param_nesting))
-  end
-
-  defp param_for(conn, name, nil) do
-    conn.params
-    |> Map.get(to_string(option(conn, name)))
-    |> scrub_param(option(conn, :scrub_params))
-  end
-
-  defp param_for(conn, name, nesting) do
-    attrs = nesting
-    |> List.wrap
-    |> Enum.map(fn(item) -> to_string(item) end)
-
-    case Kernel.get_in(conn.params, attrs) do
-      nil -> nil
-      nested ->
-        nested
-        |> Map.get(to_string(option(conn, name)))
-        |> scrub_param(option(conn, :scrub_params))
-    end
-  end
-
-  defp scrub_param(param, false), do: param
-  defp scrub_param(param, _) do
-    if scrub?(param), do: nil, else: param
-  end
-
-  defp scrub?(" " <> rest), do: scrub?(rest)
-  defp scrub?(""), do: true
-  defp scrub?(_), do: false
 end

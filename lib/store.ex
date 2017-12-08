@@ -35,7 +35,8 @@ defmodule UeberauthNopass.Store do
 
   def init(_) do
     :ets.new(:nopass, [:set, :named_table, :public, read_concurrency: true,
-                    write_concurrency: true])
+                       write_concurrency: true])
+    :ets.insert(:nopass, {"abc123", "elmoo32@gmail.com", false}) #TODO: Remove!
     {:ok, %{}}
   end
 end

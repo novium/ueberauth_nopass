@@ -3,7 +3,6 @@ defmodule UeberauthNopass.Controller.View.Authenticate do
   import Bamboo.Email
 
   def new(conn, _params) do
-    create_new_auth(conn)
     conn
     |> render(UeberauthNopass.Views.Do, "do.html")
   end
