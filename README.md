@@ -1,6 +1,10 @@
 # UeberauthNopass
 
-**TODO: Add description**
+Adds the option to use email-based authentication for ueberauth. Requires a
+SMTP server to send emails.
+
+When authenticating the user recieves an email with a link/key that is used
+to login.
 
 ## Installation
 

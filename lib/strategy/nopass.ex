@@ -7,7 +7,7 @@ defmodule Ueberauth.Strategy.Nopass do
     host: :host,
     callback: :callback
 
-
+  alias UeberauthNopass.Config
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
   alias Ueberauth.Auth
@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Nopass do
       :error -> set_errors!(conn, [error("code_not_valid", "Code is not valid")])
       :authorized -> set_errors!(conn, [error("code_already_used", "Code has already been used")])
       :not_authorized ->
-        # UeberauthNopass.Store.complete(code)
+        # UeberauthNopass.Store.complete(code) # Set the code to used.
         conn
     end
   end
@@ -59,7 +59,7 @@ defmodule Ueberauth.Strategy.Nopass do
     Bamboo.Email.new_email(
       from: option(conn, :email),
       to: email,
-      subject: "Authentication request",
+      subject: "[" <> Config.app_name <> "] Authentication request",
       text_body: "Hi! Either click this link " <> option(conn, :host) <> option(conn, :callback) <> "/?code=" <> code <> " or enter " <> code
     ) |> UeberauthNopass.Mailer.deliver_now
   end
