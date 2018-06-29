@@ -17,22 +17,30 @@
 
      padding: 10px 10px 10px 10px;
 
-     background-color: #E1C55F;
-     box-shadow: 0 0 0 6px #EDF2E6;
      border-radius: 1px;
      font-family: "Segoe UI";
      color: white;
  }
 
+ h1 {
+     font-weight: 100;
+     font-size: 2.5em;
+ }
+
+ p {
+     font-weight: 200;
+     font-size: 1.4em;
+ }
+ 
  body {
      margin: 0 0 0 0 !important;
-     background-color: #213849;
+     background-color: rgb(30,30,30);
  }
 </style>
 
 <div class="wait-container">
     <div class="box">
         <h1>Waiting...</h1>
-        <p>We've sent an email to your address, go click on the link over there</p>
+        <p>We've sent an email with a link, use it within 30 minutes to log in. You can safely close this window.</p>
     </div>
 </div>

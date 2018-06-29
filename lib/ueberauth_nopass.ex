@@ -1,6 +1,4 @@
 defmodule UeberauthNopass do
-  use Application
-
   @moduledoc false
   # TODO: Add configuration option to set paths
 
@@ -16,9 +14,13 @@ defmodule UeberauthNopass do
 
   defmacro mount_html do
     quote do
-      require Ueberauth
+      pipeline :browser do
+        #plug Phoenix.LiveReloader
+        #plug Phoenix.CodeReloader
+      end
 
       scope "/nopass", UeberauthNopass.Controller.View do
+        pipe_through :browser
         get "/do", Authenticate, :new
       end
     end
