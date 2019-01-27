@@ -1,6 +1,7 @@
 defmodule UeberauthNopass do
   @moduledoc false
   # TODO: Add configuration option to set paths
+  use Application
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -15,8 +16,8 @@ defmodule UeberauthNopass do
   defmacro mount_html do
     quote do
       pipeline :browser do
-        #plug Phoenix.LiveReloader
-        #plug Phoenix.CodeReloader
+        plug Phoenix.LiveReloader
+        plug Phoenix.CodeReloader
       end
 
       scope "/nopass", UeberauthNopass.Controller.View do
@@ -34,5 +35,10 @@ defmodule UeberauthNopass do
         post "/send", Authenticate, :send
       end
     end
+  end
+
+  def config_change(changed, _new, removed) do
+    CoreWeb.Endpoint.config_change(changed, removed)
+    :ok
   end
 end

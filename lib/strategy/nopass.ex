@@ -14,11 +14,11 @@ defmodule Ueberauth.Strategy.Nopass do
 
   def handle_request!(%{params: %{"email" => email}} = conn) do
     create_new_auth(email, conn)
-    redirect!(conn, "/nopass/do")
+    conn |> assign(:status, :ok_waiting)
   end
 
   def handle_request!(conn) do
-    halt(conn)
+    conn
   end
 
   def handle_callback!(conn) do
@@ -59,7 +59,7 @@ defmodule Ueberauth.Strategy.Nopass do
     Bamboo.Email.new_email(
       from: option(conn, :email),
       to: email,
-      subject: "[" <> Config.app_name <> "] Authentication request",
+      subject: "[" <> "Core" <> "] Authentication request",
       text_body: "Hi! Either click this link " <> option(conn, :host) <> option(conn, :callback) <> "/?code=" <> code <> " or enter " <> code
     ) |> UeberauthNopass.Mailer.deliver_now
   end
