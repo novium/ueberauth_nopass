@@ -36,8 +36,6 @@ defmodule UeberauthNopass.Mixfile do
       {:bamboo, "~> 0.8.0"},
       {:bamboo_smtp, "~> 1.4"},
 
-
-
       {:ueberauth, "~> 0.4.0"}
     ]
   end

@@ -36,9 +36,4 @@ defmodule UeberauthNopass do
       end
     end
   end
-
-  def config_change(changed, _new, removed) do
-    CoreWeb.Endpoint.config_change(changed, removed)
-    :ok
-  end
 end
