@@ -29,6 +29,12 @@ defmodule Ueberauth.Strategy.Nopass do
     |> check_auth
   end
 
+  def handle_cleanup!(conn) do
+    conn
+    |> Plug.Conn.delete_session("session_id")
+    |> Plug.Conn.delete_session("id")
+  end
+
   def info(conn) do
     struct(
       Info,
@@ -48,6 +54,7 @@ defmodule Ueberauth.Strategy.Nopass do
     case UeberauthNopass.Store.check_code(id, code) do
       :not_found -> set_errors!(conn, [error("code_not_found", "Code has already been used or is invalid")])
       :authorized -> set_errors!(conn, [error("code_already_used", "Code has already been used")])
+      :done -> set_errors!(conn, [error("code_already_used", "Code has already been used")])
       :waiting ->
         UeberauthNopass.Store.authenticate_code(id, code) # Set the code to used.
         conn

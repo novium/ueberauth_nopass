@@ -33,8 +33,8 @@ defmodule UeberauthNopass.Mixfile do
       {:phoenix_pubsub, "~> 1.0"},
       {:gettext, "~> 0.11"},
 
-      {:bamboo, "~> 0.8.0"},
-      {:bamboo_smtp, "~> 1.4"},
+      {:bamboo, "~> 1.2.0"},
+      {:bamboo_smtp, "~> 1.6"},
 
       {:ueberauth, "~> 0.4.0"}
     ]
